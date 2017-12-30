@@ -3,12 +3,15 @@ package models
 import (
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
+	"jinghui/common"
 )
 
 type Category struct {
-	Id           int64
-	CategoryName string
-	Description  string
+	Id          int64  `json:"id"`
+	ParentId    int64  `json:"parentId"`
+	Grade       int64  `json:"grade"`
+	Name        string `json:"name"`
+	Description string `json:"description"` //`json:"description,omitempty"`
 }
 
 func (m *Category) TableName() string {
@@ -34,13 +37,13 @@ func GetCategoryById(id int64) (*Category, error) {
 	return nil, ormerr
 }
 
-func GetCategories(param Category) ([]Category, error) {
+func GetCategories(param *Category) ([]Category, error) {
 	o := orm.NewOrm()
 	// o.Raw("aa")
 	// ids := []int{1, 2, 3}
 	// o.Raw("SELECT * FROM category WHERE id IN (?, ?, ?)", ids)
 	var categorys []Category
-	num, err := o.Raw("SELECT * FROM category WHERE category_name = ?", param.CategoryName).QueryRows(&categorys)
+	num, err := o.Raw("SELECT * FROM category WHERE name = ?", param.Name).QueryRows(&categorys)
 	if err != nil {
 		return nil, err
 	}
@@ -48,4 +51,16 @@ func GetCategories(param Category) ([]Category, error) {
 	//categorys := []*Category{}
 	//o.QueryTable(new(Category).TableName()).All(&categorys)
 	return categorys, nil
+}
+
+func AddCategory(param *Category) (common.CommonResponse) {
+	commonResponse := common.CommonResponse{}
+	o := orm.NewOrm()
+	result, ormerr := o.Insert(param)
+	if nil != ormerr {
+		logs.Error("Add Category Error:", ormerr)
+		return commonResponse.ToFail(ormerr.Error())
+	} else {
+		return commonResponse.ToSuccess("Add Category Success! Id:" + string(result))
+	}
 }

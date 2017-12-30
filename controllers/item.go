@@ -22,8 +22,8 @@ func (c *ItemController) Get() {
 	c.Data["Id"] = id
 
 	category := models.Category{
-		CategoryName: "Test",
-		Description:  "Hello",
+		Name:        "Test",
+		Description: "Hello",
 	}
 	category1, err := models.GetCategoryById(id)
 	if nil != err {
@@ -32,7 +32,7 @@ func (c *ItemController) Get() {
 		logs.Info(category1)
 		c.Data["category"] = category1
 	}
-	categories, err := models.GetCategories(category)
+	categories, err := models.GetCategories(&category)
 	if nil != err {
 		logs.Error(err)
 	}
